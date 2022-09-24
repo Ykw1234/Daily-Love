@@ -72,6 +72,6 @@ print(dic_str)
 
 wm = WeChatMessage(client)
 wea, temperature = get_weather()
-data = {"today":{"value":dic_str['today']},"weather":{"value":wea},"temperature":{"value":temperature},"city":{"value":city},"love_days":{"value":get_count()},"birthday_left":{"value":get_birthday()},"birthday_left2":{"value":get_birthday2()},"exam":{"value":get_count2()},"words":{"value":get_words(), "color":get_random_color()}}
+data = {"today":{"value":json.loads(dic_str['today'])},"weather":{"value":wea},"temperature":{"value":temperature},"city":{"value":city},"love_days":{"value":get_count()},"birthday_left":{"value":get_birthday()},"birthday_left2":{"value":get_birthday2()},"exam":{"value":get_count2()},"words":{"value":get_words(), "color":get_random_color()}}
 res = wm.send_template(user_id, template_id, data)
 print(res)
