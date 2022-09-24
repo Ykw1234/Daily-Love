@@ -5,6 +5,7 @@ from wechatpy.client.api import WeChatMessage, WeChatTemplate
 import requests
 import os
 import random
+import json
 
 today = datetime.now()
 start_date = os.environ['START_DATE']
@@ -19,10 +20,12 @@ app_secret = os.environ["APP_SECRET"]
 user_id = os.environ["USER_ID"]
 template_id = os.environ["TEMPLATE_ID"]
 
-
-def get_today():
-  next = datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
-  return next
+class DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            return json.JSONEncoder.default(self, obj)
 
 def get_weather():
   url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
@@ -62,8 +65,13 @@ def get_random_color():
 
 client = WeChatClient(app_id, app_secret)
 
+dic = {'today': datetime.now()}
+print(dic)
+dic_str = json.dumps(dic, cls=DateEncoder)
+print(dic_str)
+
 wm = WeChatMessage(client)
 wea, temperature = get_weather()
-data = {"today":{"value":get_today()},"weather":{"value":wea},"temperature":{"value":temperature},"city":{"value":city},"love_days":{"value":get_count()},"birthday_left":{"value":get_birthday()},"birthday_left2":{"value":get_birthday2()},"exam":{"value":get_count2()},"words":{"value":get_words(), "color":get_random_color()}}
+data = {"today":{"value":dic_str['today']},"weather":{"value":wea},"temperature":{"value":temperature},"city":{"value":city},"love_days":{"value":get_count()},"birthday_left":{"value":get_birthday()},"birthday_left2":{"value":get_birthday2()},"exam":{"value":get_count2()},"words":{"value":get_words(), "color":get_random_color()}}
 res = wm.send_template(user_id, template_id, data)
 print(res)
